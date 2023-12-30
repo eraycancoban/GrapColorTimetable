@@ -81,7 +81,7 @@ export const studentLessons = (req, res) => {
         console.log(sene.sinifsenesi)
 
         // Dersleri öğrencinin sınıf senesine göre getir
-        const q2 = "SELECT * FROM ders WHERE sinif_sene = ?";
+        const q2 = "SELECT ders_id,ders_adi,ders_kodu,kontenjan,renk,hoca_ad,hoca_soyad,hoca_unvan FROM ders join hocalar as h on h.id=ders.hoca_id WHERE sinif_sene = ?";
 
         db.query(q2, [sene.sinifsenesi], (err, data) => {
             if (err) return res.json(err);

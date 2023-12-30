@@ -185,22 +185,24 @@ export const studentProgram = (req, res) => {
     const studentId = req.params.id; // Öğrenci ID'sini al
 
     // Öğrencinin zaten bu dersi aldığını kontrol et
-    const q = "SELECT sinifsenesi FROM ogrenciler WHERE ogrenci_id = ?";
+    const q = `SELECT dp.sinif_kodu,d.ders_adi,d.ders_kodu,d.sinif_sene,p.gun,p.baslangic,h.hoca_ad,h.hoca_soyad,h.hoca_unvan,d.renk
+    FROM dersprogrami as dp
+    join ders as d
+    on d.ders_id=dp.ders_id
+    join program as p
+    on p.color=dp.color
+    join hocalar as h
+    on h.id=d.hoca_id
+    join ogrenciders as od
+    on od.ders_id=d.ders_id
+    join ogrenciler as o
+    on o.ogrenci_id=od.ogrenci_id
+    where o.ogrenci_id= ?`;
 
     db.query(q, [studentId], (err, data) => {
         if (err) return res.json(err);
-
-        // Öğrencinin sınıf senesi bilgisini al
-        const sene = data[0].sınıfsenesi;
-
-        // Dersleri öğrencinin sınıf senesine göre getir
-        const q2 = "SELECT * FROM ders WHERE sinif_sene = ?";
-
-        db.query(q2, [sene], (err, data) => {
-            if (err) return res.json(err);
-
-            return res.status(200).json(data);
-        });
+        return res.status(200).json(data);
+      
     });
 };
 
