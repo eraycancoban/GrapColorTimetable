@@ -181,6 +181,28 @@ export const getProgram=(req,res)=>{
         return res.json(data)
     })
 }
+export const studentProgram = (req, res) => {
+    const studentId = req.params.id; // Öğrenci ID'sini al
+
+    // Öğrencinin zaten bu dersi aldığını kontrol et
+    const q = "SELECT sinifsenesi FROM ogrenciler WHERE ogrenci_id = ?";
+
+    db.query(q, [studentId], (err, data) => {
+        if (err) return res.json(err);
+
+        // Öğrencinin sınıf senesi bilgisini al
+        const sene = data[0].sınıfsenesi;
+
+        // Dersleri öğrencinin sınıf senesine göre getir
+        const q2 = "SELECT * FROM ders WHERE sinif_sene = ?";
+
+        db.query(q2, [sene], (err, data) => {
+            if (err) return res.json(err);
+
+            return res.status(200).json(data);
+        });
+    });
+};
 
 
 function resolveConflicts() {

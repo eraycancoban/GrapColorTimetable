@@ -35,7 +35,8 @@ export const myLessons=(req,res)=>{
     where d.hoca_id= ?`
     db.query(q,[req.params.id],(err, data)=>{
         if (err) return res.json(err);
-        return res.status(200).json(data);
+        const siniflar = data.map((row) => row);
+        return res.status(200).json(siniflar);
     })
 }
 
@@ -75,18 +76,21 @@ export const studentLessons = (req, res) => {
         if (err) return res.json(err);
 
         // Öğrencinin sınıf senesi bilgisini al
-        const sene = data[0].sınıfsenesi;
+        console.log(data)
+        const sene = data[0];
+        console.log(sene.sinifsenesi)
 
         // Dersleri öğrencinin sınıf senesine göre getir
         const q2 = "SELECT * FROM ders WHERE sinif_sene = ?";
 
-        db.query(q2, [sene], (err, data) => {
+        db.query(q2, [sene.sinifsenesi], (err, data) => {
             if (err) return res.json(err);
 
             return res.status(200).json(data);
         });
     });
 };
+
 
 
 function getRandomColor() {
