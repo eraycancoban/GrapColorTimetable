@@ -6,19 +6,20 @@ import {config}  from "../config/auth.config.js"
 export const addLesson=(req,res)=>{
     
     const q="Select * From ders Where ders_kodu = ?"
-
+    var randomColor = getRandomColor();
     db.query(q,[req.body.dersKodu], (err, data) => {
         if (err) return res.json(err);
         if (data.length) return res.status(409).json("Bu ders zaten eklenmiş");
         })
 
-    const q2=`INSERT INTO Ders (ders_adi, ders_kodu, kontenjan, hoca_id, sinif_sene) VALUES (?)`
+    const q2=`INSERT INTO Ders (ders_adi, ders_kodu, kontenjan, hoca_id, sinif_sene,renk) VALUES (?)`
     const values = [
         req.body.dersAd,
         req.body.dersKodu,
         req.body.kontenjan,
         req.params.id,
-        req.body.sene
+        req.body.sene,
+        randomColor
        ]
 
     db.query(q2, [values], (err, data) => {
@@ -28,7 +29,10 @@ export const addLesson=(req,res)=>{
 }
 
 export const myLessons=(req,res)=>{
-    const q="Select * From ders Where hoca_id = ?"
+    const q=`SELECT d.ders_adi,dp.sinif_kodu,d.renk,d.sinif_sene,d.ders_kodu,d.kontenjan FROM ders as d
+    join dersprogrami  as dp
+    on d.ders_id=dp.ders_id
+    where d.hoca_id= ?`
     db.query(q,[req.params.id],(err, data)=>{
         if (err) return res.json(err);
         return res.status(200).json(data);
@@ -83,3 +87,18 @@ export const studentLessons = (req, res) => {
         });
     });
 };
+
+
+function getRandomColor() {
+    var colors = [
+      "red", "orange", "amber", "yellow", "lime",
+      "green", "emerald", "teal", "cyan", "sky blue",
+      "indigo", "violet", "purple", "fuchsia", "pink", "rose"
+    ];
+  
+    var randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  }
+  
+  // Fonksiyonu kullanma örneği:
+  
