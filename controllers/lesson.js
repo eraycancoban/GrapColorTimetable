@@ -93,27 +93,15 @@ export const studentLessons = (req, res) => {
 
 export const selectedStudentLessons = (req, res) => {
     const studentId = req.params.id; // Öğrenci ID'sini al
+    // Dersleri öğrencinin sınıf senesine göre getir
+    const q2 = "SELECT ders_adi,ders_kodu,kontenjan,renk,hoca_ad,hoca_soyad,hoca_unvan FROM ders join hocalar as h on h.id=ders.hoca_id join ogrenciders on ders.ders_id = ogrenciders.ders_id WHERE ogrenci_id = ?";
 
-    // Öğrencinin zaten bu dersi aldığını kontrol et
-    const q = "SELECT ders_id FROM ogrenciders join ders on ders.ders_id = ogrenciders.ders_id WHERE ogrenci_id = ?";
-
-    db.query(q, [studentId], (err, data) => {
+    db.query(q2, [studentId], (err, data) => {
         if (err) return res.json(err);
-
-        // Öğrencinin sınıf senesi bilgisini al
-        console.log(data)
-        const sene = data[0];
-        console.log(sene.sinifsenesi)
-
-        // Dersleri öğrencinin sınıf senesine göre getir
-        const q2 = "SELECT ders_id,ders_adi,ders_kodu,kontenjan,renk,hoca_ad,hoca_soyad,hoca_unvan FROM ders join hocalar as h on h.id=ders.hoca_id WHERE sinif_sene = ?";
-
-        db.query(q2, [sene.sinifsenesi], (err, data) => {
-            if (err) return res.json(err);
-
-            return res.status(200).json(data);
-        });
+        const lessons = data.map((row) => row);
+        return res.status(200).json(lessons);
     });
+    
 };
 
 function getRandomColor() {
