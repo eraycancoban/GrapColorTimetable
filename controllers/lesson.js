@@ -40,31 +40,33 @@ export const myLessons=(req,res)=>{
     })
 }
 
-export const selectLesson=(req,res)=>{
+export const selectLesson = (req, res) => {
     const studentId = req.params.id; // Öğrenci ID'sini al
-    const ders_id = req.body.ders_id; // Ders ID'sini al
+    const selectedLessons = req.body.ders_id; // Seçilen derslerin ID'lerini içeren bir dizi al
 
-    // Öğrencinin zaten bu dersi aldığını kontrol et
-    const q = "SELECT * FROM ogrenci    ders WHERE ogrenci_id = ? AND ders_id = ?";
-    
-    db.query(q, [studentId, ders_id], (err, data) => {
+    // Seçilen derslerin hepsi için öğrencinin zaten bu dersi aldığını kontrol et
+    const q = "SELECT * FROM ogrenciders WHERE ogrenci_id = ? AND ders_id IN (?)";
+
+    db.query(q, [studentId, selectedLessons], (err, data) => {
         if (err) return res.json(err);
 
-        // Öğrencinin zaten bu dersi aldığı durumu
+        // Öğrencinin zaten seçilen derslerden birini aldığı durum
         if (data.length > 0) {
-            return res.status(409).json("Bu ders zaten eklenmiş");
+            const conflictedLessons = data.map(item => item.ders_id);
+            return res.status(409).json({ message: "Bu derslerden bazıları zaten eklenmiş", conflictedLessons });
         }
 
-        // Dersi öğrenciye kaydet
-        const q2 = "INSERT INTO ogrenciders (ogrenci_id, ders_id) VALUES (?, ?)";
-        
-        db.query(q2, [studentId, ders_id], (err, data) => {
+        // Dersleri öğrenciye kaydet
+        const values = selectedLessons.map(ders_id => [studentId, ders_id]);
+        const q2 = "INSERT INTO ogrenciders (ogrenci_id, ders_id) VALUES ?";
+
+        db.query(q2, [values], (err, data) => {
             if (err) return res.json(err);
 
-            return res.status(200).json("Ders başarıyla eklendi");
-        });
-    });
-}
+            return res.status(200).json("Dersler başarıyla eklendi");
+        });
+    });
+};
 
 export const studentLessons = (req, res) => {
     const studentId = req.params.id; // Öğrenci ID'sini al
