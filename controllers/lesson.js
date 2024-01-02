@@ -91,7 +91,18 @@ export const studentLessons = (req, res) => {
     });
 };
 
+export const selectedStudentLessons = (req, res) => {
+    const studentId = req.params.id; // Öğrenci ID'sini al
+    // Dersleri öğrencinin sınıf senesine göre getir
+    const q2 = "SELECT ders_adi,ders_kodu,kontenjan,renk,hoca_ad,hoca_soyad,hoca_unvan FROM ders join hocalar as h on h.id=ders.hoca_id join ogrenciders on ders.ders_id = ogrenciders.ders_id WHERE ogrenci_id = ?";
 
+    db.query(q2, [studentId], (err, data) => {
+        if (err) return res.json(err);
+        const lessons = data.map((row) => row);
+        return res.status(200).json(lessons);
+    });
+    
+};
 
 function getRandomColor() {
     var colors = [

@@ -50,14 +50,14 @@ export const komsulukCikar = (req, res) => {
                         console.log(siniflar)
                         const sinifSayi = data[0].sayi
                         const sonuc = kaydedilenSayilariBul(birlesikVeri, maxSayi);
-                        const coloredNodes = welshPowell(sonuc, sinifSayi,siniflar);
+                        const coloredNodes = welshPowell(sonuc, sinifSayi, siniflar);
                         console.log(coloredNodes)
 
 
-                        
+
                         const insertQuery = 'INSERT INTO dersProgrami (ders_id, color,sinif_kodu) VALUES ?';
-                        
-                        let value=assignClassCodeAndColor(siniflar,coloredNodes)
+
+                        let value = assignClassCodeAndColor(siniflar, coloredNodes)
                         console.log(value)
 
                         const values = Object.entries(value).map(([dersId, { color, sinif_kodu }]) => [parseInt(dersId), color, sinif_kodu]);
@@ -156,7 +156,7 @@ function assignClassCodeAndColor(classes, distribution) {
         result[key] = {
             color: distribution[key],
             sinif_kodu: classes[randomClassIndex]
-            
+
         };
     });
 
@@ -164,8 +164,8 @@ function assignClassCodeAndColor(classes, distribution) {
 }
 
 
-export const getProgram=(req,res)=>{
-    const query=`SELECT dp.sinif_kodu,d.ders_adi,d.ders_kodu,d.sinif_sene,p.gun,p.baslangic,h.hoca_ad,h.hoca_soyad,h.hoca_unvan 
+export const getProgram = (req, res) => {
+    const query = `SELECT dp.sinif_kodu,d.ders_adi,d.ders_kodu,d.sinif_sene,p.gun,p.baslangic,h.hoca_ad,h.hoca_soyad,h.hoca_unvan, d.renk
     FROM dersprogrami as dp
     join ders as d
     on d.ders_id=dp.ders_id
@@ -174,8 +174,8 @@ export const getProgram=(req,res)=>{
     join hocalar as h
     on h.id=d.hoca_id
     `
-    db.query(query,(err,data)=>{
-        if(err){
+    db.query(query, (err, data) => {
+        if (err) {
             return res.json(err)
         }
         return res.json(data)
@@ -202,7 +202,7 @@ export const studentProgram = (req, res) => {
     db.query(q, [studentId], (err, data) => {
         if (err) return res.json(err);
         return res.status(200).json(data);
-      
+
     });
 };
 
@@ -267,7 +267,7 @@ function resolveConflictsInClasses(conflictList, totalClasses) {
         const { color, sinif_kodu } = conflict;
 
         // Rastgele bir başka sınıf seç
-        let randomClass ;
+        let randomClass;
 
         do {
             randomClass = Math.floor(Math.random() * totalClasses) + 1;
