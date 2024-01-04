@@ -2,11 +2,18 @@ import { db } from "../db.js";
 
 export const komsulukCikar = (req, res) => {
     // Öğrenci komşulukları
+    console.log("başladı")
+    const deleteQuery = "Delete from dersprogrami"
+    db.query(deleteQuery, (err, data) => {
+        if (err) {
+            return res.json(err);
+        }
+        console.log("silindi")
+    })
     const ogrenciQuery = `
         SELECT ogrenci_id, GROUP_CONCAT(ders_id) AS komsuluk
         FROM ogrenciders
         GROUP BY ogrenci_id;`;
-
     // Hoca komşulukları
     const hocaQuery = `
         SELECT hoca_id, GROUP_CONCAT(ders_id) AS komsuluk
@@ -50,14 +57,14 @@ export const komsulukCikar = (req, res) => {
                         console.log(siniflar)
                         const sinifSayi = data[0].sayi
                         const sonuc = kaydedilenSayilariBul(birlesikVeri, maxSayi);
-                        const coloredNodes = welshPowell(sonuc, sinifSayi, siniflar);
+                        const coloredNodes = welshPowell(sonuc, sinifSayi);
                         console.log(coloredNodes)
 
 
-
+                        
                         const insertQuery = 'INSERT INTO dersProgrami (ders_id, color,sinif_kodu) VALUES ?';
-
-                        let value = assignClassCodeAndColor(siniflar, coloredNodes)
+                        
+                        let value=assignClassCodeAndColor(siniflar,coloredNodes)
                         console.log(value)
 
                         const values = Object.entries(value).map(([dersId, { color, sinif_kodu }]) => [parseInt(dersId), color, sinif_kodu]);
@@ -69,6 +76,7 @@ export const komsulukCikar = (req, res) => {
                                 throw err;
                             }
                             console.log('Veri başarıyla eklendi');
+                            return res.json("başarı")
                             // Veritabanı bağlantısını kapat
                             resolveConflicts()
                         });
@@ -82,8 +90,8 @@ export const komsulukCikar = (req, res) => {
 
             });
         });
-    })
-
+    })
+    
 };
 
 function kaydedilenSayilariBul(veri, maxSayi) {
@@ -110,27 +118,19 @@ function kaydedilenSayilariBul(veri, maxSayi) {
     return kaydedilenSayilar;
 }
 
-function welshPowell(graph, maxSameColorNeighbors, siniflar) {
+function welshPowell(graph, maxSameColorNeighbors) {
     const sortedNodes = Object.keys(graph).sort((a, b) => graph[b].length - graph[a].length);
     const colors = {};
-    const usedClasses = new Set();
 
     for (const node of sortedNodes) {
         const neighborColors = new Set(graph[node].map(neighbor => colors[neighbor]));
 
-        // Kullanılmayan en düşük renk numarasını ve sınıfı seç
         let color = 1;
-        let sinif;
-        while (neighborColors.has(color) || countSameColorNeighbors(graph[node], colors, color) >= maxSameColorNeighbors || usedClasses.has(sinif)) {
+        while (neighborColors.has(color) || countSameColorNeighbors(graph[node], colors, color) >= maxSameColorNeighbors) {
             color++;
-            sinif = siniflar[Math.floor(Math.random() * siniflar.length)]; // rastgele sınıf seç
         }
 
-        // Düğümü seçilen renk ile boyayın
         colors[node] = color;
-        // Düğüme ait sinif_kodu bilgisini de ekleyin
-        graph[node].sinif_kodu = sinif;
-        usedClasses.add(sinif);
     }
 
     return colors;
@@ -140,7 +140,7 @@ function welshPowell(graph, maxSameColorNeighbors, siniflar) {
 function countSameColorNeighbors(neighbors, colors, color) {
     return neighbors.reduce((count, neighbor) => {
         return colors[neighbor] === color ? count + 1 : count;
-    }, 0);
+    }, 0);
 }
 
 function assignClassCodeAndColor(classes, distribution) {
@@ -161,8 +161,7 @@ function assignClassCodeAndColor(classes, distribution) {
     });
 
     return result;
-}
-
+}   
 
 export const getProgram = (req, res) => {
     const query = `SELECT dp.sinif_kodu,d.ders_adi,d.ders_kodu,d.sinif_sene,p.gun,p.baslangic,h.hoca_ad,h.hoca_soyad,h.hoca_unvan, d.renk

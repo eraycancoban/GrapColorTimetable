@@ -64,8 +64,8 @@ export const selectLesson = (req, res) => {
             if (err) return res.json(err);
 
             return res.status(200).json("Dersler başarıyla eklendi");
-        });
-    });
+       });
+    });
 };
 
 export const studentLessons = (req, res) => {
@@ -109,7 +109,7 @@ export const selectedStudentLessons = (req, res) => {
 function getRandomColor() {
     var colors = [
       "red", "orange", "amber", "yellow", "lime",
-      "green", "emerald", "teal", "cyan", "sky blue",
+      "green", "emerald", "teal", "cyan", "sky", "blue",
       "indigo", "violet", "purple", "fuchsia", "pink", "rose"
     ];
   
